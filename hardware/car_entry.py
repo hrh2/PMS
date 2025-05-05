@@ -7,6 +7,8 @@ import serial
 import serial.tools.list_ports
 import csv
 from collections import Counter
+import platform
+
 
 # Load YOLOv8 model
 model = YOLO('../model_dev/runs/detect/train/weights/best.pt')
@@ -23,11 +25,21 @@ if not os.path.exists(csv_file):
         writer.writerow(['Plate Number', 'Payment Status', 'Timestamp'])
 
 # ===== Auto-detect Arduino Serial Port =====
+
 def detect_arduino_port():
     ports = list(serial.tools.list_ports.comports())
+    system = platform.system()
+
     for port in ports:
-        if "usbmodem" in port.device or "wchusbmodem" in port.device:
-            return port.device
+        if system == "Linux":
+            if "ttyUSB" in port.device or "ttyACM" in port.device:
+                return port.device
+        elif system == "Darwin":  # macOS
+            if "usbmodem" in port.device or "usbserial" in port.device:
+                return port.device
+        elif system == "Windows":
+            if "COM" in port.device:
+                return port.device
     return None
 
 arduino_port = detect_arduino_port()
