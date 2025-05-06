@@ -51,10 +51,21 @@ else:
     print("[ERROR] Arduino not detected.")
     arduino = None
 
-# ===== Ultrasonic Sensor Setup =====
-import random
-def mock_ultrasonic_distance():
-    return random.choice([random.randint(10, 40)] + [random.randint(60, 150)] * 10)
+
+# ===== Ultrasonic Sensor Reading from Arduino =====
+def read_distance(arduino):
+    """
+    Reads a distance (float) value from the Arduino via serial.
+    Returns the float if valid, or None if invalid/empty.
+    """
+    if arduino and arduino.in_waiting > 0:
+        try:
+            line = arduino.readline().decode('utf-8').strip()
+            return float(line)
+        except ValueError:
+            return None
+    return None
+
 
 # Initialize webcam
 cap = cv2.VideoCapture(0)
@@ -70,7 +81,9 @@ while True:
     if not ret:
         break
 
-    distance = mock_ultrasonic_distance()
+    distance = read_distance(arduino)
+    if distance is None:
+        continue
     print(f"[SENSOR] Distance: {distance} cm")
 
     if distance <= 50:
