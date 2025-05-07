@@ -89,7 +89,7 @@ def process_payment(plate, balance, ser):
                             return
 
                     # Send new balance
-                    ser.write(f"{new_balance}\n".encode())
+                    ser.write(f"{new_balance}\r\n".encode())  # more universal
                     print(f"[PAYMENT] Sent new balance {new_balance}")
 
                     # Wait for confirmation with timeout

@@ -11,7 +11,7 @@ MFRC522::StatusCode card_status;
 bool awaitingUpdate = false;
 bool sentReady = false;
 String currentPlate = "";
-int currentBalance = 0;
+long currentBalance = 0;
 
 // Timeout variables
 unsigned long readySentTime = 0;
@@ -83,7 +83,16 @@ void loop() {
             if (response == "I") {
                 Serial.println("[DENIED] Insufficient balance");
             } else {
-                int newBalance = response.toInt();
+                Serial.print("[DEBUG] Cleaned response: '");
+                Serial.print(response);
+                Serial.println("'");
+
+                response.trim();  // Right before toInt()
+                long newBalance = response.toInt();
+                Serial.print(newBalance);
+
+
+
                 if (newBalance >= 0) {
                     Serial.println("[WRITING] New balance to card...");
                     writeBlockData(4, String(newBalance));
