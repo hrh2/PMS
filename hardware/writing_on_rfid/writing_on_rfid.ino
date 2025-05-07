@@ -35,7 +35,7 @@ void loop(){
 
   // Request car plate
   Serial.println(F("Enter car plate number (end with # press ENTER):"));
-  Serial.setTimeout(30000L); // Wait up to 30 seconds
+  Serial.setTimeout(20000L); // Wait up to 30 seconds
   byte len = Serial.readBytesUntil('#', (char *)carPlateBuff, 16);
   padBuffer(carPlateBuff, len);
 
