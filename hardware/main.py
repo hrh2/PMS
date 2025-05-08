@@ -32,6 +32,21 @@ def detect_arduino_port():
             return port.device
     return None
 
+# ===== Ultrasonic Sensor Reading from Arduino =====
+def read_distance(arduino):
+    """
+    Reads a distance (float) value from the Arduino via serial.
+    Returns the float if valid, or None if invalid/empty.
+    """
+    if arduino and arduino.in_waiting > 0:
+        try:
+            line = arduino.readline().decode('utf-8').strip()
+            return float(line)
+        except ValueError:
+            return None
+    return None
+
+
 arduino_port = detect_arduino_port()
 arduino = serial.Serial(arduino_port, 9600, timeout=1) if arduino_port else None
 if arduino:
@@ -52,8 +67,8 @@ while True:
     if not ret:
         break
 
-    distance = float(arduino.readline().decode('utf-8').strip()) if arduino and arduino.in_waiting > 0 else None
-    if distance is None or distance > 50:
+    distance = read_distance(arduino)
+    if distance is None:
         continue
 
     results = model(frame)
