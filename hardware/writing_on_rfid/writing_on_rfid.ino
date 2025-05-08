@@ -34,10 +34,20 @@ void loop(){
   byte balanceBuff[16];
 
   // Request car plate
-  Serial.println(F("Enter car plate number (end with # press ENTER):"));
-  Serial.setTimeout(20000L); // Wait up to 30 seconds
+  Serial.println(F("Enter car plate number (7 characters, end with # press ENTER):"));
+  Serial.setTimeout(20000L); // Wait up to 20 seconds
   byte len = Serial.readBytesUntil('#', (char *)carPlateBuff, 16);
+
+  if (len != 7) {
+    Serial.println(F("❌ Invalid car plate. Must be exactly 7 characters (e.g., RAG234H). Try again.\n"));
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+    delay(2000);
+    return;
+  }
+
   padBuffer(carPlateBuff, len);
+
 
   // Request balance
   Serial.println(F("Enter balance (end with # press ENTER):"));
