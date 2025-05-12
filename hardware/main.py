@@ -52,7 +52,14 @@ arduino = serial.Serial(arduino_port, 9600, timeout=1) if arduino_port else None
 if arduino:
     time.sleep(2)
 
+print("[DEBUG] Attempting to open camera...")
 cap = cv2.VideoCapture(0)
+if cap.isOpened():
+    print("[DEBUG] Camera opened successfully.")
+else:
+    print("[ERROR] Could not open the camera.")
+    exit(1)
+
 plate_buffer = []
 entry_cooldown = 300
 last_saved_plate = None
@@ -69,7 +76,8 @@ while True:
 
     distance = read_distance(arduino)
     if distance is None:
-        continue
+        print("[WARNING] No distance data from Arduino.")
+        distance = 1000
 
     results = model(frame)
     for result in results:
