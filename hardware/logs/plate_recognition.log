@@ -1,0 +1,94 @@
+2025-05-13 11:20:43,987 - PlateRecognition - INFO - Initializing Plate Recognition System
+2025-05-13 11:20:43,987 - PlateRecognition - INFO - Loading model from ../model_dev/runs/detect/train/weights/best.pt
+2025-05-13 11:20:44,022 - PlateRecognition - INFO - Model loaded successfully
+2025-05-13 11:20:44,028 - PlateRecognition - WARNING - No Arduino port detected
+2025-05-13 11:20:44,028 - PlateRecognition - WARNING - Arduino not detected, running in simulation mode
+2025-05-13 11:20:44,028 - PlateRecognition - INFO - Connecting to camera on device 0
+2025-05-13 11:20:44,367 - PlateRecognition - INFO - Camera initialized successfully
+2025-05-13 11:20:44,367 - PlateRecognition - INFO - System initialization complete
+2025-05-13 11:20:44,367 - PlateRecognition - INFO - Starting plate recognition system
+2025-05-13 11:21:13,414 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:13,546 - PlateRecognition - INFO - Valid plate detected: AE455G
+2025-05-13 11:21:17,178 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:17,178 - PlateRecognition - WARNING - Weak consensus (0.67) for AF455G, ignoring
+2025-05-13 11:21:18,740 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:20,611 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:21,688 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:21,689 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:21,689 - PlateRecognition - INFO - Recorded entry for plate AF455G
+2025-05-13 11:21:21,689 - PlateRecognition - INFO - Gate opening (SIMULATED)
+2025-05-13 11:21:23,965 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:24,438 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:25,309 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:25,309 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:25,309 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:25,574 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:25,713 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:26,146 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:26,146 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:26,146 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:27,322 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:31,892 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:32,441 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:32,442 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:32,442 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:35,410 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:37,529 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:38,333 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:38,333 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:38,334 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:39,185 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:39,670 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:40,213 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:40,213 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:40,213 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:40,484 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:42,492 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:43,195 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:43,195 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:43,195 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:49,431 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:50,960 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:51,359 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:51,360 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:51,360 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:51,902 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:52,179 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:52,571 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:52,571 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:52,571 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:53,292 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:54,191 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:54,590 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:54,590 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:54,590 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:21:54,987 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:56,075 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:56,471 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:21:56,471 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:21:56,471 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:22:04,217 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:22:06,537 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:22:08,176 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:22:08,177 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:22:08,177 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:22:08,820 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:22:09,621 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:22:11,509 - PlateRecognition - INFO - Valid plate detected: AF455G
+2025-05-13 11:22:11,509 - PlateRecognition - INFO - Strong consensus (1.00) for plate AF455G
+2025-05-13 11:22:11,509 - PlateRecognition - INFO - Skipped duplicate entry for AF455G within cooldown period
+2025-05-13 11:22:16,508 - PlateRecognition - INFO - Exit requested by user
+2025-05-13 11:22:16,508 - PlateRecognition - INFO - Cleaning up resources
+2025-05-13 11:22:16,525 - PlateRecognition - INFO - System shutdown complete
+2025-05-13 13:06:51,499 - PlateRecognition - INFO - Initializing Plate Recognition System
+2025-05-13 13:06:51,499 - PlateRecognition - INFO - Loading model from ../model_dev/runs/detect/train/weights/best.pt
+2025-05-13 13:06:51,548 - PlateRecognition - INFO - Model loaded successfully
+2025-05-13 13:06:51,554 - PlateRecognition - WARNING - No Arduino port detected
+2025-05-13 13:06:51,554 - PlateRecognition - WARNING - Arduino not detected, running in simulation mode
+2025-05-13 13:06:51,554 - PlateRecognition - INFO - Connecting to camera on device 0
+2025-05-13 13:06:51,927 - PlateRecognition - INFO - Camera initialized successfully
+2025-05-13 13:06:51,928 - PlateRecognition - INFO - System initialization complete
+2025-05-13 13:06:51,928 - PlateRecognition - INFO - Starting plate recognition system
+2025-05-13 13:09:07,825 - PlateRecognition - INFO - Exit requested by user
+2025-05-13 13:09:07,826 - PlateRecognition - INFO - Cleaning up resources
+2025-05-13 13:09:07,837 - PlateRecognition - INFO - System shutdown complete
