@@ -13,7 +13,7 @@ import random
 model = YOLO('/opt/homebrew/runs/detect/train4/weights/best.pt')
 
 # CSV log file
-csv_file = 'plates_log.csv'
+csv_file = 'db.csv'
 
 # ===== Auto-detect Arduino Serial Port =====
 def detect_arduino_port():

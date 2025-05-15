@@ -5,7 +5,7 @@ import serial.tools.list_ports
 import platform
 from datetime import datetime
 
-CSV_FILE = 'plates_log.csv'
+CSV_FILE = 'db.csv'
 RATE_PER_MINUTE = 5  # Amount charged per minute
 
 

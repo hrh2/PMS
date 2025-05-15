@@ -469,7 +469,7 @@ def main():
         'save_plate_images': args.save_images,
 
         'save_dir': 'plates',
-        'csv_file': 'plates_log.csv',
+        'csv_file': 'db.csv',
         'log_file': 'logs/plate_recognition.log',
 
         'detection_distance': 50,  # cm

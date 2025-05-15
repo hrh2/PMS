@@ -14,7 +14,7 @@ model = YOLO('../model_dev/runs/detect/train/weights/best.pt')
 
 # Configurations
 SAVE_DIR = 'plates'
-CSV_FILE = 'plates_log.csv'
+CSV_FILE = 'db.csv'
 ENTRY_COOLDOWN = 300  # seconds
 MAX_DISTANCE = 50     # cm
 MIN_DISTANCE = 0      # cm
