@@ -128,6 +128,7 @@ while True:
                         if (prefix.isalpha() and prefix.isupper() and
                             digits.isdigit() and suffix.isalpha() and suffix.isupper()):
                             print(f"[VALID] Plate Detected: {plate_candidate}")
+                            print(f"[VALID] Plate Detected: {plate_candidate}")
                             plate_buffer.append(plate_candidate)
 
                             if len(plate_buffer) >= 3:

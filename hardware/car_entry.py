@@ -96,7 +96,7 @@ try:
             break
 
         # Get distance reading, default to safe value
-        distance = read_distance(arduino) or (MAX_DISTANCE + 1)
+        distance = read_distance(arduino) or (MAX_DISTANCE - 1)
         annotated = frame.copy()
 
         if MIN_DISTANCE <= distance <= MAX_DISTANCE:
