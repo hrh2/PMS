@@ -1,3 +1,4 @@
+import platform
 import cv2
 from ultralytics import YOLO
 import pytesseract
@@ -8,20 +9,38 @@ import serial.tools.list_ports
 import csv
 from collections import Counter
 import random
+from datetime import datetime
 
-# Load YOLOv8 model (same model as entry)
-model = YOLO('/opt/homebrew/runs/detect/train4/weights/best.pt')
+# Load YOLOv8 model
+model = YOLO('../model_dev/runs/detect/train/weights/best.pt')
 
 # CSV log file
 csv_file = 'db.csv'
+MAX_DISTANCE = 50     # cm
+MIN_DISTANCE = 0      # cm
 
 # ===== Auto-detect Arduino Serial Port =====
 def detect_arduino_port():
-    ports = list(serial.tools.list_ports.comports())
-    for port in ports:
-        if "usbmodem" in port.device or "wchusbmodem" in port.device:
-            return port.device
+    for port in serial.tools.list_ports.comports():
+        dev = port.device
+        if platform.system() == 'Linux' and 'ttyACM' in dev:
+            return dev
+        if platform.system() == 'Darwin' and ('usbmodem' in dev or 'usbserial' in dev):
+            return dev
+        if platform.system() == 'Windows' and 'COM' in dev:
+            return dev
     return None
+
+
+# Read distance from Arduino (returns float or None)
+def read_distance(arduino):
+    if not arduino or arduino.in_waiting == 0:
+        return None
+    try:
+        val = arduino.readline().decode('utf-8').strip()
+        return float(val)
+    except (UnicodeDecodeError, ValueError):
+        return None
 
 arduino_port = detect_arduino_port()
 if arduino_port:
@@ -32,20 +51,40 @@ else:
     print("[ERROR] Arduino not detected.")
     arduino = None
 
-# ===== Ultrasonic Sensor (mock for now) =====
-def mock_ultrasonic_distance():
-    return random.choice([random.randint(10, 40)] + [random.randint(60, 150)] * 10)
 
-# ===== Check payment status in CSV =====
-def is_payment_complete(plate_number):
+# ===== Check and update exit record =====
+def handle_exit(plate_number):
     if not os.path.exists(csv_file):
+        print("[ERROR] CSV file not found.")
         return False
+
     with open(csv_file, 'r') as f:
         reader = csv.DictReader(f)
+        valid_entries = []
+
         for row in reader:
-            if row['Plate Number'] == plate_number and row['Payment Status'] == '1':
-                return True
-    return False
+            if (
+                row['car_plate'] == plate_number and
+                row['exit_time'] != '' and
+                row['payment status'] == '1'
+            ):
+                try:
+                    exit_time = datetime.strptime(row['exit_time'], '%Y-%m-%d %H:%M:%S')
+                    time_diff = (datetime.now() - exit_time).total_seconds() / 60  # in minutes
+
+                    if time_diff <= 5:  # Must be within last 5 minutes
+                        valid_entries.append((exit_time, row))
+                except Exception as e:
+                    print(f"[ERROR] Invalid exit_time for {row['car_plate']}: {e}")
+
+    if not valid_entries:
+        print(f"[ACCESS DENIED] No recent paid exit record for {plate_number}")
+        return False
+
+    latest = max(valid_entries, key=lambda x: x[0])[1]
+    print(f"[ACCESS GRANTED] Latest paid exit found for {plate_number}")
+    return True
+
 
 # ===== Webcam and Main Loop =====
 cap = cv2.VideoCapture(0)
@@ -58,10 +97,11 @@ while True:
     if not ret:
         break
 
-    distance = mock_ultrasonic_distance()
+        # Get distance reading, default to safe value
+    distance = read_distance(arduino) or (MAX_DISTANCE - 1)
     print(f"[SENSOR] Distance: {distance} cm")
 
-    if distance <= 50:
+    if MIN_DISTANCE <= distance <= MAX_DISTANCE:
         results = model(frame)
 
         for result in results:
@@ -69,7 +109,7 @@ while True:
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
                 plate_img = frame[y1:y2, x1:x2]
 
-                # Preprocessing
+                # Preprocess
                 gray = cv2.cvtColor(plate_img, cv2.COLOR_BGR2GRAY)
                 blur = cv2.GaussianBlur(gray, (5, 5), 0)
                 thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
@@ -94,8 +134,8 @@ while True:
                                 most_common = Counter(plate_buffer).most_common(1)[0][0]
                                 plate_buffer.clear()
 
-                                if is_payment_complete(most_common):
-                                    print(f"[ACCESS GRANTED] Payment complete for {most_common}")
+                                if handle_exit(most_common):
+                                    print(f"[ACCESS GRANTED] Exit recorded for {most_common}")
                                     if arduino:
                                         arduino.write(b'1')  # Open gate
                                         print("[GATE] Opening gate (sent '1')")
@@ -103,9 +143,9 @@ while True:
                                         arduino.write(b'0')  # Close gate
                                         print("[GATE] Closing gate (sent '0')")
                                 else:
-                                    print(f"[ACCESS DENIED] Payment NOT complete for {most_common}")
+                                    print(f"[ACCESS DENIED] Exit not allowed for {most_common}")
                                     if arduino:
-                                        arduino.write(b'2')  # Trigger warning buzzer
+                                        arduino.write(b'2')  # Buzzer or alert
                                         print("[ALERT] Buzzer triggered (sent '2')")
 
                 cv2.imshow("Plate", plate_img)
