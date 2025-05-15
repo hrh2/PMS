@@ -11,160 +11,150 @@ from collections import Counter
 
 # Load YOLOv8 model
 model = YOLO('../model_dev/runs/detect/train/weights/best.pt')
-print('Model Loaded. Press any key to continue.')
 
-# Plate save directory
-save_dir = 'plates'
-os.makedirs(save_dir, exist_ok=True)
+# Plate save directory and CSV log file
+SAVE_DIR = 'plates'
+CSV_FILE = 'plates_log.csv'
+os.makedirs(SAVE_DIR, exist_ok=True)
 
-# CSV log file
-csv_file = 'plates_log.csv'
-if not os.path.exists(csv_file):
-    with open(csv_file, 'w', newline='') as f:
+if not os.path.exists(CSV_FILE):
+    with open(CSV_FILE, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['no', 'entry_time', 'exit_time', 'car_plate', 'due payment', 'payment status'])
 
-# ===== Auto-detect Arduino Serial Port =====
+# Auto-detect Arduino Serial Port
 def detect_arduino_port():
-    ports = list(serial.tools.list_ports.comports())
+    ports = serial.tools.list_ports.comports()
     system = platform.system()
     for port in ports:
-        if system == "Linux" and ("ttyUSB" in port.device or "ttyACM" in port.device):
-            return port.device
-        elif system == "Darwin" and ("usbmodem" in port.device or "usbserial" in port.device):
-            return port.device
-        elif system == "Windows" and "COM" in port.device:
-            return port.device
+        dev = port.device
+        if system == 'Linux' and 'ttyACM' in dev:
+            return dev
+        if system == 'Darwin' and ('usbmodem' in dev or 'usbserial' in dev):
+            return dev
+        if system == 'Windows' and 'COM' in dev:
+            return dev
     return None
 
-# ===== Ultrasonic Sensor Reading from Arduino =====
+# Read distance from Arduino
 def read_distance(arduino):
-    """
-    Reads a distance (float) value from the Arduino via serial.
-    Returns the float if valid, or None if invalid/empty.
-    """
-    if arduino and arduino.in_waiting > 0:
-        try:
-            line = arduino.readline().decode('utf-8').strip()
-            return float(line)
-        except ValueError:
-            return None
-    return None
+    if not arduino or arduino.in_waiting == 0:
+        return None
+    try:
+        line = arduino.readline().decode('utf-8').strip()
+        return float(line)
+    except (UnicodeDecodeError, ValueError):
+        return None
 
-
-arduino_port = detect_arduino_port()
-if arduino_port:
-    print(f"[CONNECTED] Arduino on {arduino_port}")
-    arduino = serial.Serial(arduino_port, 9600, timeout=1)
+# Initialize Arduino connection
+audruino_port = detect_arduino_port()
+arduino = None
+if audruino_port:
+    print(f"[CONNECTED] Arduino on {audruino_port}")
+    arduino = serial.Serial(audruino_port, 9600, timeout=1)
     time.sleep(2)
 else:
     print("[ERROR] Arduino not detected.")
-    arduino = None
 
-# ===== Ultrasonic Sensor Setup =====
-import random
-def mock_ultrasonic_distance():
-    return random.choice([random.randint(10, 40)] + [random.randint(60, 150)] * 10)
+# Setup OpenCV windows as resizable
+def init_windows():
+    cv2.namedWindow('Webcam Feed', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('Plate', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('Processed', cv2.WINDOW_NORMAL)
+    # Optionally set initial sizes
+    cv2.resizeWindow('Webcam Feed', 800, 600)
 
 # Initialize webcam
-print("[DEBUG] Attempting to open camera...")
+print("[DEBUG] Opening camera...")
 cap = cv2.VideoCapture(0)
-if cap.isOpened():
-    print("[DEBUG] Camera opened successfully.")
-else:
+if not cap.isOpened():
     print("[ERROR] Could not open the camera.")
     exit(1)
 
+init_windows()
+
 plate_buffer = []
-entry_cooldown = 300  # 5 minutes
+entry_cooldown = 300  # seconds
 last_saved_plate = None
 last_entry_time = 0
+entry_count = sum(1 for _ in open(CSV_FILE)) - 1
 
 print("[SYSTEM] Ready. Press 'q' to exit.")
-entry_count = sum(1 for _ in open(csv_file)) - 1
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
+try:
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("[ERROR] Failed to read from camera.")
+            break
 
-    distance = read_distance(arduino)
-    if distance is None:
-        print("[WARNING] No distance data from Arduino.")
-        distance = 30
+        # Read ultrasonic distance
+        distance = read_distance(arduino) or 30
+        annotated_frame = frame.copy()
 
-    if distance <= 50:
-        results = model(frame)
+        if distance <= 50:
+            results = model(frame)[0]
+            annotated_frame = results.plot()
 
-        for result in results:
-            for box in result.boxes:
+            for box in results.boxes:
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
                 plate_img = frame[y1:y2, x1:x2]
 
-                # Plate Image Processing
+                # Preprocess for OCR
                 gray = cv2.cvtColor(plate_img, cv2.COLOR_BGR2GRAY)
                 blur = cv2.GaussianBlur(gray, (5, 5), 0)
-                thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+                thresh = cv2.threshold(blur, 0, 255,
+                                       cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
-                # OCR Extraction
+                # OCR extraction
                 plate_text = pytesseract.image_to_string(
-                    thresh, config='--psm 8 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-                ).strip().replace(" ", "")
+                    thresh,
+                    config='--psm 8 --oem 3 '
+                           '-c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+                ).strip().replace(' ', '')
 
-                # Plate Validation
-                if "RA" in plate_text:
-                    start_idx = plate_text.find("RA")
-                    plate_candidate = plate_text[start_idx:]
-                    if len(plate_candidate) >= 7:
-                        plate_candidate = plate_candidate[:7]
-                        prefix, digits, suffix = plate_candidate[:3], plate_candidate[3:6], plate_candidate[6]
-                        if (prefix.isalpha() and prefix.isupper() and
-                            digits.isdigit() and suffix.isalpha() and suffix.isupper()):
-                            print(f"[VALID] Plate Detected: {plate_candidate}")
-                            plate_buffer.append(plate_candidate)
+                # Validate Rwandan plate pattern
+                if plate_text.startswith('RA') and len(plate_text) >= 7:
+                    candidate = plate_text[:7]
+                    prefix, digits, suffix = candidate[:3], candidate[3:6], candidate[6]
+                    if prefix.isalpha() and digits.isdigit() and suffix.isalpha():
+                        plate_buffer.append(candidate)
 
-                            # Decision after 3 captures
-                            if len(plate_buffer) >= 3:
-                                most_common = Counter(plate_buffer).most_common(1)[0][0]
-                                current_time = time.time()
+                # After 3 captures, pick most common
+                if len(plate_buffer) >= 3:
+                    most_common = Counter(plate_buffer).most_common(1)[0][0]
+                    now = time.time()
+                    if (most_common != last_saved_plate or
+                        (now - last_entry_time) > entry_cooldown):
+                        with open(CSV_FILE, 'a', newline='') as f:
+                            writer = csv.writer(f)
+                            entry_count += 1
+                            writer.writerow([
+                                entry_count,
+                                time.strftime('%Y-%m-%d %H:%M:%S'),
+                                '', most_common, '', 0
+                            ])
+                        if arduino:
+                            arduino.write(b'1')
+                            time.sleep(15)
+                            arduino.write(b'0')
+                        last_saved_plate = most_common
+                        last_entry_time = now
+                    plate_buffer.clear()
 
-                                if (most_common != last_saved_plate or
-                                        (current_time - last_entry_time) > entry_cooldown):
-
-                                    with open(csv_file, 'a', newline='') as f:
-                                        writer = csv.writer(f)
-                                        entry_count += 1
-                                        writer.writerow([
-                                            entry_count,
-                                            time.strftime('%Y-%m-%d %H:%M:%S'),
-                                            '', most_common, '', 0
-                                        ])
-
-                                    if arduino:
-                                        arduino.write(b'1')
-                                        print("[GATE] Opening gate (sent '1')")
-                                        time.sleep(15)  # Gate open duration
-                                        arduino.write(b'0')
-                                        print("[GATE] Closing gate (sent '0')")
-
-                                    last_saved_plate = most_common
-                                    last_entry_time = current_time
-                                else:
-                                    print("[SKIPPED] Duplicate within 5 min window.")
-
-                                plate_buffer.clear()
-
-                cv2.imshow("Plate", plate_img)
-                cv2.imshow("Processed", thresh)
+                # Display plate and processed images
+                cv2.imshow('Plate', plate_img)
+                cv2.imshow('Processed', thresh)
                 time.sleep(0.5)
 
-    annotated_frame = results[0].plot() if distance <= 50 else frame
-    cv2.imshow('Webcam Feed', annotated_frame)
+        # Show annotated or raw feed
+        cv2.imshow('Webcam Feed', annotated_frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-cap.release()
-if arduino:
-    arduino.close()
-cv2.destroyAllWindows()
+finally:
+    cap.release()
+    if arduino:
+        arduino.close()
+    cv2.destroyAllWindows()
