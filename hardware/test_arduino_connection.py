@@ -17,8 +17,8 @@ def read_float(serial_port):
     return None
 
 # Set up the serial connection
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-time.sleep(2)  # Give the connection time to initialize
+ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
+time.sleep(1)  # Give the connection time to initialize
 
 print("Reading float values from Arduino. Press Ctrl+C to stop.\n")
 

@@ -43,9 +43,11 @@ def detect_arduino_port():
 # Read distance from Arduino (returns float or None)
 def read_distance(arduino):
     if not arduino or arduino.in_waiting == 0:
+        print("[ERROR] arduino is not ready")
         return None
     try:
         val = arduino.readline().decode('utf-8').strip()
+        print(f"[SUCCESS] arduino is ready] {val}")
         return float(val)
     except (UnicodeDecodeError, ValueError):
         return None
@@ -65,7 +67,7 @@ arduino_port = detect_arduino_port()
 arduino = None
 if arduino_port:
     print(f"[CONNECTED] Arduino on {arduino_port}")
-    arduino = serial.Serial(arduino_port, 9600, timeout=1)
+    arduino = serial.Serial(arduino_port, 115200, timeout=1)
     time.sleep(2)
 else:
     print("[ERROR] Arduino not detected.")
@@ -96,7 +98,8 @@ try:
             break
 
         # Get distance reading, default to safe value
-        distance = read_distance(arduino) or (MAX_DISTANCE - 1)
+        distance = read_distance(arduino) or (MAX_DISTANCE + 1)
+        print(distance)
         annotated = frame.copy()
 
         if MIN_DISTANCE <= distance <= MAX_DISTANCE:
