@@ -43,7 +43,7 @@ void loop() {
       padBuffer(carPlateBuff, len);
       break; // valid input
     } else {
-      Serial.print(F("❌ Invalid input length (got "));
+      Serial.print(F("❌ Invalid input length (got )"));
       Serial.print(len);
       Serial.println(F(" characters). Try again.\n"));
       flushSerial();
